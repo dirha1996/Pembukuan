@@ -2086,6 +2086,19 @@ html.dark td.nom.Income { color:#6ee7b7 }
   .tfl .chips { flex-wrap:nowrap; overflow-x:auto; padding-bottom:6px; scrollbar-width:thin }
   .tfl .chips button { flex:none }
 }
+nav [data-tab=scan]::before{content:"🧾"}
+.scz{margin-top:12px;padding:18px;border:2px dashed var(--line,#bbb);border-radius:14px;text-align:center;color:var(--mut,#666)}
+.scit{display:flex;gap:14px;padding:14px;margin-top:12px;flex-wrap:wrap}
+.scth{width:110px;height:150px;object-fit:cover;border-radius:10px}
+.scb{flex:1;min-width:260px}
+.scf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.scf .fi{display:flex;flex-direction:column;gap:4px;font-size:12px}
+.scf input,.scf select{width:100%}
+.scw{color:#b45309;font-size:12px;margin:6px 0}
+.scit pre{white-space:pre-wrap;font-size:11px;max-height:160px;overflow:auto}
+tr.kc{cursor:pointer}
+tr.kc:hover td{background:rgba(56,118,255,.14)}
+@media print{tr.kc{cursor:auto}}
 </style>
 <script>
 /* Terapkan tema gelap/terang sedini mungkin agar tidak berkedip */
@@ -2094,7 +2107,7 @@ try{var t=localStorage.getItem('fin_hcd_theme');if(t?t=='dark':matchMedia('(pref
 </head>
 <body>
 <!-- ===== [HTML-1] HEADER: judul, menu utama, toolbar ===== -->
-<header data-section="header"><h1>Finance HCD</h1><nav><button data-tab="dash">Dashboard</button> <button data-tab="tx">Transaksi</button> <button data-tab="bud">Anggaran</button> <button data-tab="rep">Laporan</button></nav>
+<header data-section="header"><h1>Finance HCD</h1><nav><button data-tab="dash">Dashboard</button> <button data-tab="tx">Transaksi</button> <button data-tab="scan">Scan Bukti</button> <button data-tab="bud">Anggaran</button> <button data-tab="rep">Laporan</button></nav>
 <!-- [HTML-1b] Menu pengaturan (ikon gear, buka/tutup halus) -->
 <div class="tb"><button id="gb" aria-expanded="false" aria-controls="tbm" title="Pengaturan"><span class="gi">⚙️</span><span class="gl">Pengaturan</span><span class="chev">▾</span></button><div class="tbm" id="tbm"><div class="tbi"><div class="tbp"><div class="tbg">Tampilan</div><button id="dm" title="Ganti tema" style="--i:1"><span class="mi" id="dmi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span><span class="ml">Mode Gelap</span></button><div class="tbg">Data</div><button id="sy" style="--i:2" data-st="off"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10a6 6 0 0 0-11.5-1.5A4.5 4.5 0 0 0 7 18h11a4 4 0 0 0 0-8z"/></svg></span><span class="ml">Sinkron cloud</span><i class="sd"></i></button><button id="hs" style="--i:3"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></span><span class="ml">Riwayat cadangan</span></button><button id="lg" style="--i:4"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span class="ml">Log Aktivitas</span></button><div class="tbg">Cadangan</div><button id="bk" style="--i:5"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span><span class="ml">Cadangkan (JSON)</span></button><button id="rs" style="--i:6"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M4 3h16"/></svg></span><span class="ml">Pulihkan dari file</span></button><input type="file" id="fl" accept=".json" hidden></div></div></div></header>
 <!-- ===== [HTML-2] KONTEN UTAMA (diisi JS; atribut data-section = tab aktif) ===== -->
@@ -2350,7 +2363,7 @@ function render() {
         lastTab = tab;
     }
     ;
-    ({ dash, tx, bud, rep })[tab]();
+    ({ dash, tx, bud, rep, scan })[tab]();
 }
 /* ===== [JS-2] DASHBOARD ===== */
 function dash() {
@@ -2696,7 +2709,7 @@ function txT() {
             const G = L.filter(y => y.d.startsWith(lm));
             b += `<tr class=mh><td colspan=8>${MON[+lm.slice(5) - 1]} ${lm.slice(0, 4)} · ${G.length} transaksi · Income ${rp(sm(G, 'Income'))} · Expenses ${rp(sm(G, 'Expenses'))} · Savings ${rp(sm(G, 'Savings'))}</td></tr>`;
         }
-        b += `<tr class="${x.id == flashId ? 'flash' : ''}"><td>${x.id}</td><td>${fd(x.d)}</td><td><span class="bdg ${x.t}">${TLBL[x.t] || x.t}</span></td><td>${esc(x.c)}</td><td style="white-space:normal">${esc(x.e)}</td><td class="r nom ${x.t}">${x.t == 'Income' ? '+' : '−'}${rp(x.n)}</td><td class=r>${rp(bal[x.d])}</td><td><button class=ic data-d=${x.id} title=Duplikat>⧉</button><button class=ic data-e=${x.id} title=Ubah>✎</button><button class=ic data-x=${x.id} title=Hapus>✕</button></td></tr>`;
+        b += `<tr class="${x.id == flashId ? 'flash' : ''}"><td>${x.id}</td><td>${fd(x.d)}</td><td><span class="bdg ${x.t}">${TLBL[x.t] || x.t}</span></td><td>${esc(x.c)}</td><td style="white-space:normal">${esc(x.e)}${x.r ? ' <button class="ic" data-r="' + x.r + '" title="Lihat bukti">📎</button>' : ''}</td><td class="r nom ${x.t}">${x.t == 'Income' ? '+' : '−'}${rp(x.n)}</td><td class=r>${rp(bal[x.d])}</td><td><button class=ic data-d=${x.id} title=Duplikat>⧉</button><button class=ic data-e=${x.id} title=Ubah>✎</button><button class=ic data-x=${x.id} title=Hapus>✕</button></td></tr>`;
     });
     $('#tbl').innerHTML = `<table><thead><tr>${th('id', 'ID')}${th('d', 'Date')}${th('t', 'Type')}${th('c', 'Category')}${th('e', 'Description')}${th('n', 'Nominal', 'r')}<th>Balance</th><th></th></tr></thead><tbody>${b || `<tr><td colspan=8 class=emp><b>Tidak ada transaksi yang cocok</b><span class=mut>${S.tx.length ? 'Coba ubah atau hapus filter pencarian.' : 'Mulai dengan menambah transaksi pertama di form atas.'}</span>${S.tx.length ? '<br><button class=pri id=q_r2>↺ Reset filter</button>' : ''}</td></tr>`}</tbody></table>${L.length > txT.lim ? `<div class=tmore><span class=mut>Menampilkan ${txT.lim} dari ${L.length} transaksi</span><button class=pri id=tmore>Tampilkan ${Math.min(200, L.length - txT.lim)} lagi</button></div>` : ''}`;
     const fr = document.querySelector('tr.flash');
@@ -3017,13 +3030,13 @@ function repBody() {
         return;
     }
     const { R, L, bal, sm, I, E, V, op, cl, hb, bp, grp_, cats } = repModel();
-    const row = (n, k, b, T) => hb ? `<tr><td>${esc(n)}</td><td>${rp(k)}</td><td>${rp(b)}</td><td>${b ? Math.round(k / b * 100) : 0}%</td><td>${rp(Math.max(b - k, 0))}</td><td>${rp(Math.max(k - b, 0))}</td></tr>` : `<tr><td>${esc(n)}</td><td>${rp(k)}</td><td>${T ? (k / T * 100).toFixed(1) : 0}%</td></tr>`;
+    const row = (n, k, b, T, ty) => { const a = ty ? ` class=kc data-kc="${ty}|${esc(n)}" title="Klik untuk lihat rincian"` : ''; return hb ? `<tr${a}><td>${esc(n)}</td><td>${rp(k)}</td><td>${rp(b)}</td><td>${b ? Math.round(k / b * 100) : 0}%</td><td>${rp(Math.max(b - k, 0))}</td><td>${rp(Math.max(k - b, 0))}</td></tr>` : `<tr${a}><td>${esc(n)}</td><td>${rp(k)}</td><td>${T ? (k / T * 100).toFixed(1) : 0}%</td></tr>`; };
     /* [JS-5c] Tabel realisasi (+ anggaran bila bulanan/tahunan) */
     const tb = t => {
         const r = cats(t);
         const T = sm(L, t);
         const B = hb ? bgt(t, null, ry, bp) : 0;
-        return `<table class=bd><thead><tr style="background:${COL[t]}"><th>${t}</th><th>Realisasi</th>${hb ? '<th>Anggaran</th><th>% Usage</th><th>Sisa</th><th>Excess</th>' : '<th>% dari total</th>'}</tr></thead><tbody>${r.map(x => row(x.c, x.k, x.b, T)).join('') || `<tr><td colspan=${hb ? 6 : 3} class=mut>Tidak ada data</td></tr>`}</tbody><tfoot>${row('Total', T, B, T)}</tfoot></table>`;
+        return `<table class=bd><thead><tr style="background:${COL[t]}"><th>${t}</th><th>Realisasi</th>${hb ? '<th>Anggaran</th><th>% Usage</th><th>Sisa</th><th>Excess</th>' : '<th>% dari total</th>'}</tr></thead><tbody>${r.map(x => row(x.c, x.k, x.b, T, t)).join('') || `<tr><td colspan=${hb ? 6 : 3} class=mut>Tidak ada data</td></tr>`}</tbody><tfoot>${row('Total', T, B, T)}</tfoot></table>`;
     };
     /* [JS-5d] Donut pengeluaran: SEMUA kategori, tanpa "Others" */
     const ex = Object.entries(grp_('Expenses')).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
@@ -3036,7 +3049,7 @@ function repBody() {
         off += f;
         return s;
     }).join('');
-    const spend = EX > 0 ? `<div class=sg>Summary - ${R.ttl}</div><div class=tsc data-section="lap-top-spending"><div><h5>Top <u>Spending</u> Categories:</h5><svg width="260" height="260" viewBox="0 0 200 200">${sg}</svg></div><table class=lg><tbody>${ex.map(([n, v], i) => `<tr><td><i style="background:${pc('Expenses', i, ex.length)}"></i>${esc(n)}</td><td class=r>${rp(v)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class=r>${rp(EX)}</td></tr></tfoot></table></div>` : `<div class=sg>Summary - ${R.ttl}</div><div class=mut>Belum ada pengeluaran pada periode ini.</div>`;
+    const spend = EX > 0 ? `<div class=sg>Summary - ${R.ttl}</div><div class=tsc data-section="lap-top-spending"><div><h5>Top <u>Spending</u> Categories:</h5><svg width="260" height="260" viewBox="0 0 200 200">${sg}</svg></div><table class=lg><tbody>${ex.map(([n, v], i) => `<tr class=kc data-kc="Expenses|${esc(n)}" title="Klik untuk lihat rincian"><td><i style="background:${pc('Expenses', i, ex.length)}"></i>${esc(n)}</td><td class=r>${rp(v)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class=r>${rp(EX)}</td></tr></tfoot></table></div>` : `<div class=sg>Summary - ${R.ttl}</div><div class=mut>Belum ada pengeluaran pada periode ini.</div>`;
     /* [JS-5e] Ringkasan per hari (mingguan) / per bulan (tahunan) */
     let per = '';
     if (rt == 'w' || rt == 'y') {
@@ -3868,5 +3881,345 @@ document.addEventListener('visibilitychange', () => {
 });
 sIcon();
 pull();
+
+/* ===== [JS-13] SCAN BUKTI: unggah foto kwitansi/bukti transfer, dibaca otomatis (OCR), simpan ke Transaksi ===== */
+const SCQ = [];
+let scW = null, scBusy = 0, scIdle, scLog = null;
+const MEMI = {};
+const idb = () => new Promise((ok, no) => {
+    if (idb.p) return ok(idb.p);
+    const r = indexedDB.open('fin_hcd_img', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('i', { keyPath: 'id' });
+    r.onsuccess = () => ok(idb.p = r.result);
+    r.onerror = () => no(r.error);
+});
+async function iPut(rec) {
+    rec.t = rec.t || Date.now();
+    MEMI[rec.id] = rec;
+    try {
+        const d = await idb();
+        await new Promise((ok, no) => { const t = d.transaction('i', 'readwrite'); t.objectStore('i').put(rec); t.oncomplete = ok; t.onerror = () => no(t.error); });
+    } catch (e) {
+        if (!iPut.w) { iPut.w = 1; toast('⚠ Penyimpanan gambar browser tidak tersedia: bukti hanya bertahan selama halaman terbuka.'); }
+    }
+}
+async function iGet(id) {
+    if (MEMI[id]) return MEMI[id];
+    try {
+        const d = await idb();
+        return await new Promise(ok => { const r = d.transaction('i').objectStore('i').get(id); r.onsuccess = () => ok(r.result || null); r.onerror = () => ok(null); });
+    } catch (e) { return null; }
+}
+async function iAll() {
+    try {
+        const d = await idb();
+        return await new Promise(ok => { const r = d.transaction('i').objectStore('i').getAll(); r.onsuccess = () => ok(r.result || []); r.onerror = () => ok([]); });
+    } catch (e) { return Object.values(MEMI); }
+}
+/* gambar ikut diunggah ke cloud (path /img) bila sinkron aktif, agar terlihat di perangkat lain */
+async function iUp() {
+    if (!sbase() || iUp.b) return;
+    iUp.b = 1;
+    try {
+        for (const r of await iAll()) {
+            if (r.up) continue;
+            const x = await fetch(U('/img/' + r.id), { method: 'PUT', body: JSON.stringify(r.data) });
+            if (!x.ok) throw 0;
+            r.up = 1;
+            await iPut(r);
+        }
+    } catch (e) { }
+    iUp.b = 0;
+}
+async function imgGet(id) {
+    const r = await iGet(id);
+    if (r) return r.data;
+    if (!sbase()) return null;
+    try {
+        const x = await fetch(U('/img/' + id), { cache: 'no-store' });
+        if (!x.ok) return null;
+        const d = await x.json();
+        if (typeof d != 'string') return null;
+        await iPut({ id, data: d, up: 1 });
+        return d;
+    } catch (e) { return null; }
+}
+setInterval(iUp, 30000);
+/* bersihkan gambar yatim (transaksinya sudah dihapus >1 hari) di perangkat dan di cloud agar kuota gratis awet */
+async function iClean() {
+    if (iClean.b) return;
+    iClean.b = 1;
+    try {
+        const ref = new Set(S.tx.map(x => x.r).filter(Boolean));
+        for (const r of await iAll()) {
+            if (ref.has(r.id) || Date.now() - (r.t || 0) < 864e5) continue;
+            try {
+                const d = await idb();
+                await new Promise(ok => { const t = d.transaction('i', 'readwrite'); t.objectStore('i').delete(r.id); t.oncomplete = ok; t.onerror = ok; });
+            } catch (e) { }
+            delete MEMI[r.id];
+            if (sbase() && r.up) { try { await fetch(U('/img/' + r.id), { method: 'DELETE' }); } catch (e) { } }
+        }
+    } catch (e) { }
+    iClean.b = 0;
+}
+setTimeout(iClean, 20000);
+setInterval(iClean, 6 * 36e5);
+addEventListener('focus', iUp);
+
+/* ---- gambar: muat, perkecil, siapkan untuk OCR ---- */
+function scLoad(file) {
+    return new Promise((ok, no) => {
+        const u = URL.createObjectURL(file), im = new Image();
+        im.onload = () => { URL.revokeObjectURL(u); ok(im); };
+        im.onerror = () => { URL.revokeObjectURL(u); no(new Error('Gambar tidak bisa dibuka')); };
+        im.src = u;
+    });
+}
+function scCan(im, mx) {
+    const k = Math.min(1, mx / Math.max(im.naturalWidth, im.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(im.naturalWidth * k);
+    c.height = Math.round(im.naturalHeight * k);
+    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    return c;
+}
+function scEnc(im) { /* hemat kuota: 1000px, WebP bila didukung (kualitas 60%), cadangan JPEG */
+    const c = scCan(im, 1000);
+    let u = c.toDataURL('image/webp', .6);
+    if (u.indexOf('data:image/webp') != 0) u = c.toDataURL('image/jpeg', .6);
+    return u;
+}
+function scPrep(c) { /* abu-abu; dibalik bila gambar gelap (screenshot mode gelap) */
+    const x = c.getContext('2d'), d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+    let s = 0, n = 0;
+    for (let i = 0; i < p.length; i += 16) { s += p[i] * .3 + p[i + 1] * .59 + p[i + 2] * .11; n++; }
+    const inv = s / n < 110;
+    for (let i = 0; i < p.length; i += 4) {
+        let g = p[i] * .3 + p[i + 1] * .59 + p[i + 2] * .11;
+        if (inv) g = 255 - g;
+        p[i] = p[i + 1] = p[i + 2] = g;
+    }
+    x.putImageData(d, 0, 0);
+    return c;
+}
+async function scWorker() {
+    clearTimeout(scIdle);
+    if (scW) return scW;
+    if (!window.Tesseract)
+        await new Promise((ok, no) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+            s.onload = ok;
+            s.onerror = () => no(new Error('Mesin pembaca gagal dimuat. Pastikan internet aktif lalu coba lagi.'));
+            document.head.appendChild(s);
+        });
+    scW = await Tesseract.createWorker('ind+eng', 1, { logger: m => scLog && scLog(m) });
+    return scW;
+}
+
+/* ---- penguraian teks: tanggal, nominal, keterangan, jenis, kategori ---- */
+const BLN = { jan: 1, feb: 2, mar: 3, apr: 4, mei: 5, may: 5, jun: 6, jul: 7, agu: 8, agt: 8, aug: 8, sep: 9, okt: 10, oct: 10, nov: 11, des: 12, dec: 12 };
+function scNum(s) {
+    s = s.replace(/[^\d.,]/g, '');
+    if (/[.,]\d{3}[.,]\d{2}$/.test(s)) s = s.slice(0, -3);
+    return +s.replace(/\D/g, '') || 0;
+}
+function scDate(t) {
+    const P = (y, m, d) => (y >= 2000 && y < 2100 && m >= 1 && m <= 12 && d >= 1 && d <= 31) ? y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0') : '';
+    let m, r;
+    if ((m = t.match(/(\d{1,2})\s*[-\/ ]\s*([A-Za-z]{3,9})\.?\s*[-\/ ,]*\s*(\d{4})/)) && (r = P(+m[3], BLN[m[2].toLowerCase().slice(0, 3)], +m[1]))) return r;
+    if ((m = t.match(/(\d{4})-(\d{2})-(\d{2})/)) && (r = P(+m[1], +m[2], +m[3]))) return r;
+    if ((m = t.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/)) && (r = P(+m[3], +m[2], +m[1]))) return r;
+    return '';
+}
+function scAmt(t) {
+    const K = /(grand\s*total|total|jumlah|nominal|amount|tagihan|bayar|transfer)/i, c = [];
+    t.split('\n').forEach(l => {
+        const k = K.test(l), r = /(rp|idr)/i.test(l);
+        [...l.matchAll(/(\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d{4,})/g)].forEach(m => {
+            const sep = /[.,]/.test(m[1]), v = scNum(m[1]);
+            if (v >= 100 && v < 1e11 && (sep || k || r)) c.push({ v, k, r });
+        });
+    });
+    const pk = a => a.length ? Math.max(...a.map(x => x.v)) : 0;
+    return pk(c.filter(x => x.k && x.r)) || pk(c.filter(x => x.k)) || pk(c.filter(x => x.r)) || pk(c);
+}
+function scDesc(t, ty) {
+    const src = ty == 'Income' ? 'pengirim|diterima\\s*dari|sumber\\s*dana' : 'nama\\s*penerima|penerima|kepada|tujuan';
+    const m = t.match(new RegExp('(?:' + src + ')\\s*[:\\-]?\\s*\\n?\\s*([A-Za-z][A-Za-z .\'\\-]{2,40})', 'i'));
+    if (m) return ((ty == 'Income' ? 'terima dari ' : 'tf ') + m[1].trim().replace(/\s+/g, ' ')).toLowerCase().slice(0, 60);
+    const l = t.split('\n').map(x => x.trim()).find(x => (x.match(/[A-Za-z]/g) || []).length >= 4 && !/\d{3,}/.test(x));
+    return l ? 'Belanja ' + l.replace(/\s+/g, ' ').slice(0, 40) : '';
+}
+const CK = [[/solar|bbm|pertamina|bensin|parkir/, 'Operasional Kendaraan'], [/sewa|rental/, 'Sewa Peralatan'], [/gaji|upah|kas\s?bon|operator/, 'Gaji Karyawan'], [/makan|warung|resto|kopi|cafe|konsumsi|bakso|nasi/, 'Biaya Konsumsi'], [/semen|besi|baut|\bcat\b|pasir|kabel|material|bangunan|pipa|keramik|terpal/, 'Material Proyek'], [/atk|alat tulis|lampu|mouse|printer|kertas/, 'Perlengkapan Kantor'], [/pajak|izin|retribusi|iuran/, 'Pajak Perizinan'], [/biaya admin|bunga|angsuran/, 'Biaya Keuangan'], [/subkon|\bcor\b|tukang|borongan/, 'Biaya Subkontrak']];
+function scCat(ty, t, e) {
+    const prev = e.length > 3 ? [...S.tx].reverse().find(x => x.t == ty && x.e.toLowerCase() == e.toLowerCase()) : null;
+    if (prev && S.cats[ty].includes(prev.c)) return prev.c;
+    const l = (e + ' ' + t).toLowerCase();
+    if (ty == 'Expenses') for (const [r, c] of CK) if (r.test(l) && S.cats[ty].includes(c)) return c;
+    return S.cats[ty].includes('Lainnya') ? 'Lainnya' : (S.cats[ty][0] || '');
+}
+function scParse(t) {
+    const ty = /dana masuk|uang masuk|transfer masuk|diterima dari/i.test(t) ? 'Income' : 'Expenses';
+    const e = scDesc(t, ty);
+    return { d: scDate(t), n: scAmt(t), t: ty, e, c: scCat(ty, t, e) };
+}
+
+/* ---- antrean baca (satu per satu) ---- */
+async function scRun() {
+    if (scBusy) return;
+    scBusy = 1;
+    let it;
+    while ((it = SCQ.find(x => x.s == 'wait'))) {
+        it.s = 'read';
+        it.p = 'menyiapkan…';
+        scDraw();
+        scLog = m => { it.p = m.status == 'recognizing text' ? 'membaca ' + Math.round(m.progress * 100) + '%' : 'menyiapkan…'; const el = document.getElementById('sp' + it.id); if (el) el.textContent = it.p; };
+        try {
+            const w = await scWorker();
+            const r = await w.recognize(scPrep(scCan(it.im, 2200)));
+            it.txt = r.data.text || '';
+            Object.assign(it, scParse(it.txt));
+            it.s = 'done';
+        } catch (e) {
+            it.s = 'err';
+            it.err = e.message || 'Gagal membaca gambar';
+            scW = null;
+        }
+        scDraw();
+    }
+    scLog = null;
+    scBusy = 0;
+    scIdle = setTimeout(() => { if (scW) { scW.terminate(); scW = null; } }, 90000);
+}
+async function scAdd(files) {
+    for (const f of files) {
+        if (!/^image\//.test(f.type)) continue;
+        const x = { id: Math.random().toString(36).slice(2, 9), s: 'prep', t: 'Expenses', d: '', n: 0, e: '', c: '' };
+        SCQ.push(x);
+        scDraw();
+        try {
+            x.im = await scLoad(f);
+            x.data = scEnc(x.im);
+            x.s = 'wait';
+        } catch (e) { x.s = 'err'; x.err = e.message; }
+        scDraw();
+    }
+    scRun();
+}
+function scOk(x) { return x.d && x.n > 0 && x.c; }
+async function scSave(x) {
+    if (!scOk(x)) { x.w = 'Lengkapi tanggal, kategori, dan nominal dulu.'; scDraw(); return false; }
+    let nid = 0;
+    for (const y of S.tx) if (y.id > nid) nid = y.id;
+    nid++;
+    const rid = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await iPut({ id: rid, data: x.data, up: 0 });
+    S.tx.push({ id: nid, d: x.d, t: x.t, c: x.c, e: (x.e || '').trim(), n: x.n, r: rid });
+    flashId = nid;
+    save();
+    iUp();
+    SCQ.splice(SCQ.indexOf(x), 1);
+    return true;
+}
+function scDraw() {
+    const L = $('#sc_l');
+    if (!L) return;
+    const rdy = SCQ.filter(x => x.s == 'done' && scOk(x)).length;
+    L.innerHTML = (rdy > 1 ? '<div class=frm style="margin-top:12px"><button class=pri id=sc_all>Simpan semua (' + rdy + ') ke Transaksi</button></div>' : '') + SCQ.map(x => {
+        let b;
+        if (x.s == 'done') {
+            const dup = scOk(x) && S.tx.find(y => y.d == x.d && y.n == x.n);
+            b = `<div class=scf><label class=fi>Tanggal<input type=date data-f=d value="${esc(x.d)}"></label>
+<div class=fi>Jenis<div class=seg>${TY.map(t => `<button type=button data-jn="${t}" class="${x.t == t ? 'on' : ''}">${TLBL[t]}</button>`).join('')}</div></div>
+<label class=fi>Kategori<select data-f=c>${S.cats[x.t].map(c => `<option ${c == x.c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+<label class=fi>Keterangan<input data-f=e value="${esc(x.e)}"></label>
+<label class=fi>Nominal<input type=number data-f=n min=0 step=any value="${x.n || ''}"></label></div>
+${!x.d ? '<div class=scw>Tanggal tidak terbaca, isi manual.</div>' : ''}${!x.n ? '<div class=scw>Nominal tidak terbaca, isi manual.</div>' : ''}${dup ? '<div class=scw>Mirip transaksi #' + dup.id + ' (tanggal dan nominal sama). Pastikan bukan data ganda.</div>' : ''}${x.w ? '<div class=scw>' + esc(x.w) + '</div>' : ''}
+<details><summary class=mut>Teks hasil baca</summary><pre>${esc(x.txt)}</pre></details>
+<div class=frm><button class=pri data-sv="${x.id}">Simpan ke Transaksi</button><button data-rm="${x.id}">Buang</button></div>`;
+        } else if (x.s == 'err') b = `<div class=scw>${esc(x.err)}</div><div class=frm><button data-rm="${x.id}">Buang</button></div>`;
+        else b = `<p class=mut><span id="sp${x.id}">${x.s == 'read' ? esc(x.p || 'menyiapkan…') : x.s == 'wait' ? 'menunggu giliran…' : 'memuat gambar…'}</span></p><div class=frm><button data-rm="${x.id}">Batal</button></div>`;
+        return `<div class="card scit" data-i="${x.id}">${x.data ? `<img class=scth src="${x.data}" alt="Bukti">` : ''}<div class=scb>${b}</div></div>`;
+    }).join('');
+}
+function scan() {
+    $('#app').innerHTML = `<div class="card" style="padding:16px"><h3 style="margin:0 0 6px">Scan bukti dan kwitansi</h3>
+<p class=mut>Unggah foto kwitansi, struk, atau bukti transfer. Tanggal, nominal, dan keterangan dibaca otomatis. Periksa lalu simpan ke tab Transaksi; fotonya ikut tersimpan dan bisa dibuka lewat ikon 📎.</p>
+<div class=frm><button class=pri id=sc_c>📷 Ambil foto</button><button id=sc_g>🖼 Pilih gambar</button></div>
+<div id=sc_z class=scz>atau seret gambar ke sini / tempel dengan Ctrl+V</div>
+<input type=file id=sc_f accept="image/*" multiple hidden><input type=file id=sc_f2 accept="image/*" capture="environment" hidden></div><div id=sc_l></div>`;
+    $('#sc_g').onclick = () => $('#sc_f').click();
+    $('#sc_c').onclick = () => $('#sc_f2').click();
+    $('#sc_f').onchange = e => { scAdd([...e.target.files]); e.target.value = ''; };
+    $('#sc_f2').onchange = e => { scAdd([...e.target.files]); e.target.value = ''; };
+    const z = $('#sc_z');
+    z.ondragover = e => e.preventDefault();
+    z.ondrop = e => { e.preventDefault(); scAdd([...e.dataTransfer.files]); };
+    const L = $('#sc_l');
+    const get = e => { const c = e.target.closest('.scit'); return c && SCQ.find(x => x.id == c.dataset.i); };
+    L.oninput = L.onchange = e => {
+        const x = get(e), f = e.target.dataset.f;
+        if (x && f) { x[f] = f == 'n' ? +e.target.value : e.target.value; x.w = ''; }
+    };
+    L.onclick = async e => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        if (b.id == 'sc_all') {
+            let n = 0;
+            for (const x of SCQ.filter(y => y.s == 'done' && scOk(y))) if (await scSave(x)) n++;
+            toast(n + ' transaksi tersimpan ✓');
+            if (!SCQ.length) { tab = 'tx'; render(); } else scDraw();
+            return;
+        }
+        const x = get(e);
+        if (!x) return;
+        if (b.dataset.jn) { x.t = b.dataset.jn; x.c = scCat(x.t, x.txt || '', x.e || ''); scDraw(); }
+        else if (b.dataset.rm) { SCQ.splice(SCQ.indexOf(x), 1); scDraw(); }
+        else if (b.dataset.sv) {
+            if (await scSave(x)) {
+                toast('Tersimpan ke Transaksi ✓');
+                if (!SCQ.length) { tab = 'tx'; render(); } else scDraw();
+            }
+        }
+    };
+    scDraw();
+}
+document.addEventListener('paste', e => {
+    if (tab != 'scan') return;
+    const f = [...(e.clipboardData && e.clipboardData.files || [])];
+    if (f.length) scAdd(f);
+});
+/* penampil bukti: klik ikon 📎 di tab Transaksi */
+document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-r]');
+    if (!b) return;
+    const id = b.dataset.r;
+    const d = dlg('<div class=rn><h3>Bukti transaksi</h3><p class=mut>Memuat…</p></div>');
+    const u = await imgGet(id);
+    if (!u) {
+        d.innerHTML = '<div class=rn><h3>Bukti transaksi</h3><p class=mut>Gambar tidak ada di perangkat ini. Aktifkan sinkron cloud agar bukti tersedia di semua perangkat.</p><div class=frm><button id=bv_c>Tutup</button></div></div>';
+        $('#bv_c').onclick = () => d.close();
+        return;
+    }
+    d.innerHTML = `<div class=rn><h3>Bukti transaksi</h3><img src="${u}" alt="Bukti transaksi" style="max-width:100%;max-height:70vh;display:block;margin:auto;border-radius:8px"><div class=frm><button class=pri id=bv_d>⬇ Unduh</button><button id=bv_c>Tutup</button></div></div>`;
+    $('#bv_c').onclick = () => d.close();
+    $('#bv_d').onclick = () => { const a = document.createElement('a'); a.href = u; a.download = 'bukti-' + id + (u.indexOf('data:image/webp') == 0 ? '.webp' : '.jpg'); a.click(); };
+});
+
+/* ===== [JS-14] TRACKER KATEGORI: klik kategori di laporan -> jendela pop-up berisi transaksi pembentuknya ===== */
+document.addEventListener('click', e => {
+    const r = e.target.closest('tr[data-kc]');
+    if (!r) return;
+    const i = r.dataset.kc.indexOf('|'), t = r.dataset.kc.slice(0, i), c = r.dataset.kc.slice(i + 1);
+    const { R, L } = repModel();
+    const it = L.filter(x => x.t == t && x.c == c);
+    const k = it.reduce((a, x) => a + x.n, 0);
+    const d = dlg(`<div class=rn style="min-width:min(560px,86vw)"><h3>${esc(c)}</h3><p class=mut>${TLBL[t]} · ${esc(R.ttl)} · ${it.length} transaksi</p>
+<div style="max-height:55vh;overflow:auto"><table><thead><tr><th>Date</th><th>Description</th><th class=r>Nominal</th><th class=r>%</th></tr></thead><tbody>${it.map(x => `<tr><td>${fd(x.d)}</td><td style="white-space:normal">${esc(x.e)}</td><td class=r>${rp(x.n)}</td><td class=r>${k ? (x.n / k * 100).toFixed(1) : 0}%</td></tr>`).join('') || '<tr><td colspan=4 class=mut>Tidak ada transaksi.</td></tr>'}</tbody><tfoot><tr><td colspan=2>Total</td><td class=r>${rp(k)}</td><td class=r>100%</td></tr></tfoot></table></div>
+<div class=frm><button id=kc_c>Tutup</button></div></div>`);
+    $('#kc_c').onclick = () => d.close();
+});
 
 </script></body></html>
